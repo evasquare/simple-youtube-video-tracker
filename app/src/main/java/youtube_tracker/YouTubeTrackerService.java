@@ -12,6 +12,6 @@ public class YouTubeTrackerService {
     public void start() {
         var timer = new Timer();
         var myTask = new YouTubeTrackingTask(handle);
-        timer.schedule(myTask, 0, 10_000_000);
+        timer.schedule(myTask, 0, 60000);
     }
 }
