@@ -22,12 +22,7 @@ public class YouTubeVideo {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof YouTubeVideo that)) return false;
-        return Objects.equals(videoTitle, that.videoTitle) && Objects.equals(videoURL, that.videoURL);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(videoTitle, videoURL);
+        return Objects.equals(videoTitle, that.videoTitle) && (videoURL.contains(that.videoURL) || that.videoURL.contains(videoURL));
     }
 
     @Override

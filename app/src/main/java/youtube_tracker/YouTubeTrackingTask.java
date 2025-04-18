@@ -5,21 +5,26 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.TimerTask;
 
-public class YouTubeTrackingTask extends TimerTask{
+public class YouTubeTrackingTask extends TimerTask {
     private final String handle;
     private ArrayList<YouTubeVideo> videos = new ArrayList<>();
+
+    private boolean isFirstIteration = true;
 
     public YouTubeTrackingTask(String handle) {
         this.handle = handle;
     }
 
     private void parseVideoList() {
-        WebDriver driver = new ChromeDriver();
+        var options = new ChromeOptions();
+        options.addArguments("--headless");
+        WebDriver driver = new ChromeDriver(options);
         driver.get("https://www.youtube.com/" + this.handle + "/videos");
         String pageSource = driver.getPageSource();
         assert pageSource != null;
@@ -43,15 +48,42 @@ public class YouTubeTrackingTask extends TimerTask{
 
     @Override
     public void run() {
-        var previousVideos = videos.clone();
+        // Before clearing the original array, keep it as a clone.
+        ArrayList<YouTubeVideo> previousVideos = new ArrayList<>(videos);
 
+        // Clear the original array.
         videos = new ArrayList<>();
         parseVideoList();
 
-        if (!previousVideos.equals(videos)) {
-            System.out.println("New video detected!");
-            System.out.println(videos.getFirst().getVideoTitle());
-            System.out.println(videos.getFirst().getVideoURL());
+        // Check if it detects a new video.
+        boolean isnotequal = false;
+        if (!isFirstIteration) {
+            if (videos.size() != previousVideos.size()) {
+                isnotequal = true;
+            } else {
+                for (int i = 0; i < videos.size(); i++) {
+                    if (!videos.get(i).equals(previousVideos.get(i))) {
+                        isnotequal = true;
+                        break;
+                    }
+                }
+            }
         }
+
+        YouTubeVideo latestYouTubeVideo = videos.getFirst();
+        if (isFirstIteration) {
+            printVideoInformation(latestYouTubeVideo.getVideoTitle(), latestYouTubeVideo.getVideoURL());
+            isFirstIteration = false;
+        } else {
+            if (isnotequal) {
+                printVideoInformation(latestYouTubeVideo.getVideoTitle(), latestYouTubeVideo.getVideoURL());
+            }
+        }
+    }
+
+    private void printVideoInformation(String title, String URL) {
+        System.out.println(handle + ": New video detected!");
+        System.out.println("\t" + videos.getFirst().getVideoTitle());
+        System.out.println("\t" + videos.getFirst().getVideoURL());
     }
 }
