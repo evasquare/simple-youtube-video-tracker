@@ -48,9 +48,6 @@ public class YouTubeTrackingTask extends TimerTask{
         videos = new ArrayList<>();
         parseVideoList();
 
-        System.out.println(previousVideos.toString());
-        System.out.println(videos.toString());
-
         if (!previousVideos.equals(videos)) {
             System.out.println("New video detected!");
             System.out.println(videos.getFirst().getVideoTitle());
