@@ -6,7 +6,12 @@ package youtube_tracker;
 public class App {
 
     public static void main(String[] args) {
-        var youtubeTracker = new YouTubeTrackerService("@minecraft");
-        youtubeTracker.start();
+        var google = new YouTubeTrackerService("@Google");
+        google.start();
+        var microsoft = new YouTubeTrackerService("@Microsoft");
+        microsoft.start();
+        var github = new YouTubeTrackerService("@Github");
+        github.start();
+
     }
 }
