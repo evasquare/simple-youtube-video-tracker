@@ -1,5 +1,9 @@
 package youtube_tracker;
 
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.TimerTask;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -7,11 +11,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.TimerTask;
-
 public class YouTubeTrackingTask extends TimerTask {
+
     private final String handle;
     private ArrayList<YouTubeVideo> videos = new ArrayList<>();
 
@@ -22,14 +23,14 @@ public class YouTubeTrackingTask extends TimerTask {
     }
 
     private void parseVideoList() {
-        var options = new ChromeOptions();
-        options.addArguments("--headless");
-        WebDriver driver = new ChromeDriver(options);
+        var chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--headless");
+        WebDriver driver = new ChromeDriver(chromeOptions);
         driver.get("https://www.youtube.com/" + this.handle + "/videos");
         String pageSource = driver.getPageSource();
         assert pageSource != null;
         var doc = Jsoup.parse(pageSource);
-        driver.close();
+        driver.quit();
 
         if (!doc.select("#error-page").isEmpty()) {
             throw new RuntimeException("Invalid handle or the user doesn't exist.");
@@ -39,8 +40,8 @@ public class YouTubeTrackingTask extends TimerTask {
         for (Element item : items) {
             var aTag = item.select("#video-title-link").getFirst();
             var videoTitle = Objects.requireNonNull(item.select("#video-title").first()).text();
-            var videoUrl = "https://www.youtube.com" +
-                    aTag.attr("href");
+            var videoUrl = "https://www.youtube.com"
+                    + aTag.attr("href");
             YouTubeVideo video = new YouTubeVideo(videoTitle, videoUrl);
             videos.add(video);
         }
@@ -83,7 +84,7 @@ public class YouTubeTrackingTask extends TimerTask {
 
     private void printVideoInformation(String title, String URL) {
         System.out.println(handle + ": New video detected!");
-        System.out.println("\t" + videos.getFirst().getVideoTitle());
-        System.out.println("\t" + videos.getFirst().getVideoURL());
+        System.out.println("\t" + title);
+        System.out.println("\t" + URL);
     }
 }

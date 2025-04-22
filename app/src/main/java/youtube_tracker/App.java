@@ -6,12 +6,19 @@ package youtube_tracker;
 public class App {
 
     public static void main(String[] args) {
-        var google = new YouTubeTrackerService("@Google");
-        google.start();
-        var microsoft = new YouTubeTrackerService("@Microsoft");
-        microsoft.start();
-        var github = new YouTubeTrackerService("@Github");
-        github.start();
+        startTracking("@Google");
+        startTracking("@Microsoft");
+        startTracking("@Github");
+    }
 
+    public static void startTracking(String handle) {
+        var trackerService = new YouTubeTrackerService(handle);
+        trackerService.start();
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
