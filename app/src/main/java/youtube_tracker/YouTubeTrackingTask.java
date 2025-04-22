@@ -14,8 +14,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 public class YouTubeTrackingTask extends TimerTask {
 
     private final String handle;
-    private ArrayList<YouTubeVideo> videos = new ArrayList<>();
-
+    private ArrayList<YouTubeVideo> newlyParsedVideos = new ArrayList<>();
     private boolean isFirstIteration = true;
 
     public YouTubeTrackingTask(String handle) {
@@ -43,41 +42,33 @@ public class YouTubeTrackingTask extends TimerTask {
             var videoUrl = "https://www.youtube.com"
                     + aTag.attr("href");
             YouTubeVideo video = new YouTubeVideo(videoTitle, videoUrl);
-            videos.add(video);
+            newlyParsedVideos.add(video);
         }
     }
 
     @Override
     public void run() {
         // Before clearing the original array, keep it as a clone.
-        ArrayList<YouTubeVideo> previousVideos = new ArrayList<>(videos);
+        ArrayList<YouTubeVideo> previousVideos = new ArrayList<>(newlyParsedVideos);
 
         // Clear the original array.
-        videos = new ArrayList<>();
+        newlyParsedVideos = new ArrayList<>();
         parseVideoList();
 
-        // Check if it detects a new video.
-        boolean isnotequal = false;
-        if (!isFirstIteration) {
-            if (videos.size() != previousVideos.size()) {
-                isnotequal = true;
-            } else {
-                for (int i = 0; i < videos.size(); i++) {
-                    if (!videos.get(i).equals(previousVideos.get(i))) {
-                        isnotequal = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        YouTubeVideo latestYouTubeVideo = videos.getFirst();
         if (isFirstIteration) {
-            printVideoInformation(latestYouTubeVideo.getVideoTitle(), latestYouTubeVideo.getVideoURL());
+            var firstOne = newlyParsedVideos.getFirst();
+            printVideoInformation(firstOne.getVideoTitle(), firstOne.getVideoURL());
             isFirstIteration = false;
         } else {
-            if (isnotequal) {
-                printVideoInformation(latestYouTubeVideo.getVideoTitle(), latestYouTubeVideo.getVideoURL());
+            var newVideoList = new ArrayList<YouTubeVideo>();
+            for (var item : newlyParsedVideos) {
+                if (!previousVideos.contains(item)) {
+                    newVideoList.add(item);
+                }
+            }
+
+            for (var item : newVideoList) {
+                printVideoInformation(item.getVideoTitle(), item.getVideoURL());
             }
         }
     }
